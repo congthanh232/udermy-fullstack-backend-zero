@@ -1,0 +1,84 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>home page</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+
+    <style>
+      .table-container {
+        padding: 15px 20px;
+      }
+      .title {
+        font-size: 25px;
+        font-weight: 600;
+        padding-bottom: 10px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      tr:hover {
+        background-color: #ccc;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="topnav">
+      <a class="active" href="/">Home</a>
+      <a href="/create">Create User</a>
+    </div>
+    <div class="table-container">
+        
+      <div class="title">List User</div>
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Name</th>
+          <th>City</th>
+          <th>Action</th>
+        </tr>
+        
+
+        <!-- <% for (let i = 0; i < listUsers.length; i++) { %>
+    <tr>
+          <td><%= listUsers[i].id %></td>
+          <td><%= listUsers[i].email %></td>
+          <td><%= listUsers[i].name %></td>
+          <td><%= listUsers[i].city %></td>
+          <td>
+            <button>Edit</button>
+            <button>Delete</button>
+          </td>
+        </tr>
+    <% } %> -->
+
+    <% listUsers.forEach(function(user) { %>
+    <tr>
+          <td><%= user.id %></td>
+          <td><%= user.email %></td>
+          <td><%= user.name %></td>
+          <td><%= user.city %></td>
+          <td>
+            <a href="/update/<%= user.id %>">Edit</a>
+            <form action="/delete-user/<%= user.id %>" method="post">
+            <button>Delete</button>
+          </form>
+          </td>
+        </tr>
+ <% }) %>
+       
+      </table>
+    </div>
+  </body>
+</html>
