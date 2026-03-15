@@ -6,8 +6,8 @@ const configViewEngine = require("./config/viewEngine");
 const webRoutes = require("./routes/web");
 
 const app = express(); // app express
-const port = process.env.PORT; //port
-const hostname = process.env.HOST_NAME;
+const port = process.env.PORT || 8081; //port
+// const hostname = process.env.HOST_NAME;
 
 //config req.body
 app.use(express.json()); // for json
@@ -29,6 +29,10 @@ configViewEngine(app);
 // khai báo route
 app.use(webRoutes);
 
-app.listen(port, hostname, () => {
-  console.log(`Example app listening on port ${port}`);
+// app.listen(port, hostname, () => {
+//   console.log(`Example app listening on port ${port}`);
+// });
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
