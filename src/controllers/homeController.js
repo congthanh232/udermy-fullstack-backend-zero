@@ -29,7 +29,7 @@ const postCreateUser = async (req, res) => {
   let city = req.body.city;
 
   await connection.query(
-    `INSERT INTO Users (email, name, city) VALUES (?, ?, ?)`,
+    `INSERT INTO Users (email, name, city) VALUES ($1, $2, $3)`,
     [email, name, city],
   );
 

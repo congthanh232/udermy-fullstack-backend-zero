@@ -24,4 +24,26 @@ const mysql = require("mysql2/promise");
 // });
 
 // module.exports = connection;
-module.exports = {};
+require("dotenv").config();
+const { Pool } = require("pg");
+
+const connection = new Pool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+
+// giả lập format mysql2
+const originalQuery = connection.query.bind(connection);
+
+connection.query = async (text, params) => {
+  const res = await originalQuery(text, params);
+  return [res.rows];
+};
+
+module.exports = connection;
