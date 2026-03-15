@@ -8,7 +8,7 @@ const {
 let user = [];
 const getHomepage = async (req, res) => {
   let results = await getAllUsers();
-  return res.render("home.ejs", { listUsers: results });
+  return res.render("home.ejs", { listUsers: results, user: req.session.user });
 };
 
 const getABC = (req, res) => {
@@ -20,44 +20,34 @@ const getHoiDanIT = (req, res) => {
 };
 
 const postCreateUser = async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
   let email = req.body.email;
   let name = req.body.myname;
   let city = req.body.city;
 
-  // let{email, name, city} = req.body;
-  //   connection.query(
-  //     `INSERT INTO Users  (email, name, city)
-  // VALUES (?, ?, ?)`,
-  //     [email, name, city],
-  //     function (err, results) {
-  //       console.log(results);
-
-  //       res.send("Create user succeed !");
-  //     },
-  //   );
-
-  let [results, fields] = await connection.query(
-    `INSERT INTO Users  (email, name, city) VALUES (?, ?, ?)`,
+  await connection.query(
+    `INSERT INTO Users (email, name, city) VALUES (?, ?, ?)`,
     [email, name, city],
   );
 
-  res.send("Create user succeed !");
-
-  // connection. query(
-  // 'select * from Users u',
-  // function (err, results, fields) {
-  // console.log("»>>results= ", results);
-  // }
-  // );
-
-  // const [results, fields] = await connection.query("select * from Users u");
+  res.redirect("/");
 };
 
 const getCreatePage = (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
   res.render("create.ejs");
 };
 
 const getUpdatePage = async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
   const userId = req.params.id;
   let user = await getUserById(userId);
 
@@ -87,6 +77,7 @@ const postHandleRemoveUser = async (req, res) => {
   await deleteUserById(id);
   res.redirect("/");
 };
+
 module.exports = {
   getHomepage,
   getABC,

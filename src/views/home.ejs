@@ -35,7 +35,18 @@
   <body>
     <div class="topnav">
       <a class="active" href="/">Home</a>
-      <a href="/create">Create User</a>
+      <% if(user){ %>
+<a href="/create">Create User</a>
+<% } %>
+<% if(user){ %>
+
+<a href="/logout">Logout</a>
+
+<% } else { %>
+
+<a href="/login">Login</a>
+
+<% } %>
     </div>
     <div class="table-container">
         
@@ -46,7 +57,7 @@
           <th>Email</th>
           <th>Name</th>
           <th>City</th>
-          <th>Action</th>
+          <% if(user){ %><th>Action</th><% } %>
         </tr>
         
 
@@ -63,17 +74,19 @@
         </tr>
     <% } %> -->
 
-    <% listUsers.forEach(function(user) { %>
+    <% listUsers.forEach(function(item) { %>
     <tr>
-          <td><%= user.id %></td>
-          <td><%= user.email %></td>
-          <td><%= user.name %></td>
-          <td><%= user.city %></td>
+          <td><%= item.id %></td>
+          <td><%= item.email %></td>
+          <td><%= item.name %></td>
+          <td><%= item.city %></td>
           <td>
-            <a href="/update/<%= user.id %>">Edit</a>
-            <form action="/delete-user/<%= user.id %>" method="post">
+            <% if(user){ %>
+            <a href="/update/<%= item.id %>">Edit</a>
+            <form action="/delete-user/<%= item.id %>" method="post">
             <button>Delete</button>
           </form>
+          <% } %>
           </td>
         </tr>
  <% }) %>

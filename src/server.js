@@ -1,36 +1,34 @@
+require("dotenv").config();
+const express = require("express"); // comon js
+const session = require("express-session");
 
-require('dotenv').config();
-const express = require('express');// comon js
-const path = require('path');
-const configViewEngine = require('./config/viewEngine')
-const webRoutes = require('./routes/web');
-const connection = require('./config/database');
+const configViewEngine = require("./config/viewEngine");
+const webRoutes = require("./routes/web");
 
-const app = express() // app express
-const port = process.env.PORT //port
+const app = express(); // app express
+const port = process.env.PORT; //port
 const hostname = process.env.HOST_NAME;
 
 //config req.body
-app.use(express.json()) // for json
-app.use(express.urlencoded({ extended: true})) // for form data
+app.use(express.json()); // for json
+app.use(express.urlencoded({ extended: true })); // for form data
+
+
+// config session 
+app.use(
+  session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: true,
+  }),
+);
 
 // config template engine
 configViewEngine(app);
 
 // khai báo route
-app.use(webRoutes)
+app.use(webRoutes);
 
-
-
-// A simple SELECT query
-// simple query
-// connection. query(
-// 'select * from Users u',
-// function (err, results, fields) {
-// console.log("»>>results= ", results);
-// }
-// );
-
-app.listen(port,hostname, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+app.listen(port, hostname, () => {
+  console.log(`Example app listening on port ${port}`);
+});
