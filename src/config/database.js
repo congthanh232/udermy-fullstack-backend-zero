@@ -30,6 +30,7 @@ const connection = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
+  family: 4,
 });
 
 // giả lập format mysql2
