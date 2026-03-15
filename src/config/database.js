@@ -23,4 +23,5 @@ const mysql = require('mysql2/promise')
 
 // });
 
-module.exports = connection;
+// module.exports = connection;
+module.exports = {};
