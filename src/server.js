@@ -23,6 +23,8 @@ app.use(
   }),
 );
 
+app.use(express.static("src/public"));
+
 // config template engine
 configViewEngine(app);
 

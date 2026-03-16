@@ -10,6 +10,7 @@ const {
   postDeleteUser,
   postHandleRemoveUser,
 } = require("../controllers/homeController");
+const upload = require("../middleware/upload");
 
 const authController = require("../controllers/authController");
 
@@ -26,7 +27,7 @@ router.get("/abc", getABC);
 router.get("/create", getCreatePage);
 router.get("/update/:id", getUpdatePage);
 
-router.post("/create-user", postCreateUser);
+router.post("/create-user", upload.single("avatar"), postCreateUser);
 
 router.post("/update-user", postUpdateUser);
 

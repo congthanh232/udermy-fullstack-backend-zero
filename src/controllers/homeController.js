@@ -1,4 +1,5 @@
 const connection = require("../config/database");
+const supabase = require("../config/supabase");
 const {
   getAllUsers,
   updateUserById,
@@ -47,11 +48,23 @@ const postCreateUser = async (req, res) => {
   let city = req.body.city;
   let password = req.body.password;
   let role = req.body.role;
+  let avatar = req.file ? req.file.filename : null;
+  //  if (req.file) {
+  //    const fileName = Date.now() + "-" + req.file.originalname;
+
+  //    const { data, error } = await supabase.storage
+  //      .from("avatars")
+  //      .upload(fileName, req.file.buffer);
+
+  //    if (!error) {
+  //      avatarUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/avatars/${fileName}`;
+  //    }
+  //  }
 
   await connection.query(
-    `INSERT INTO Users (email, name, city, password, role) 
-     VALUES ($1, $2, $3, $4, $5)`,
-    [email, name, city, password, role],
+    `INSERT INTO Users (email, name, city, password, role, avatar) 
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [email, name, city, password, role, avatar],
   );
 
   res.redirect("/");

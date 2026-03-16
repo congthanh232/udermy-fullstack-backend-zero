@@ -57,6 +57,7 @@
           <th>Email</th>
           <th>Name</th>
           <th>City</th>
+          <th>Avatar</th>
           <% if(user){ %><th>Action</th><% } %>
         </tr>
         
@@ -67,6 +68,9 @@
           <td><%= item.email %></td>
           <td><%= item.name %></td>
           <td><%= item.city %></td>
+          <td>
+<img src="/uploads/<%= item.avatar %>" width="50">
+</td>
           <td>
             <% if(user){ %>
             <a href="/update/<%= item.id %>">Edit</a>
