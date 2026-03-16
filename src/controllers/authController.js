@@ -1,17 +1,24 @@
+const CRUDService = require("../services/CRUDService");
 const getLoginPage = (req, res) => {
   return res.render("login.ejs");
 };
 
-const handleLogin = (req, res) => {
+const handleLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  if (email === "admin@gmail.com" && password === "123") {
-    req.session.user = email;
+  let user = await CRUDService.getUserByEmail(email);
 
-    return res.redirect("/");
+  if (!user) {
+    return res.render("login.ejs", { message: "User not found" });
   }
 
-  return res.redirect("/login");
+  if (user.password !== password) {
+    return res.render("login.ejs", { message: "Wrong password" });
+  }
+
+  req.session.user = user;
+
+  return res.redirect("/");
 };
 
 const logout = (req, res) => {

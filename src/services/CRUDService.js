@@ -28,4 +28,21 @@ const deleteUserById = async (id) => {
     [id],
   );
 };
-module.exports = { getAllUsers, updateUserById, getUserById, deleteUserById };
+
+const getUserByEmail = async (email) => {
+  let [result, fields] = await connection.query(
+    "select * from Users where email = $1",
+    [email],
+  );
+
+  let user = result && result.length > 0 ? result[0] : null;
+
+  return user;
+};
+module.exports = {
+  getAllUsers,
+  updateUserById,
+  getUserById,
+  deleteUserById,
+  getUserByEmail,
+};

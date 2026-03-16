@@ -7,8 +7,26 @@ const {
 } = require("../services/CRUDService");
 let user = [];
 const getHomepage = async (req, res) => {
-  let results = await getAllUsers();
-  return res.render("home.ejs", { listUsers: results, user: req.session.user });
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
+  let user = req.session.user;
+
+  // nếu là admin
+  if (user.role === "admin") {
+    let results = await getAllUsers();
+
+    return res.render("home.ejs", {
+      listUsers: results,
+      user: user,
+    });
+  }
+
+  // nếu là user thường
+  return res.render("profile.ejs", {
+    user: user,
+  });
 };
 
 const getABC = (req, res) => {
@@ -27,10 +45,13 @@ const postCreateUser = async (req, res) => {
   let email = req.body.email;
   let name = req.body.myname;
   let city = req.body.city;
+  let password = req.body.password;
+  let role = req.body.role;
 
   await connection.query(
-    `INSERT INTO Users (email, name, city) VALUES ($1, $2, $3)`,
-    [email, name, city],
+    `INSERT INTO Users (email, name, city, password, role) 
+     VALUES ($1, $2, $3, $4, $5)`,
+    [email, name, city, password, role],
   );
 
   res.redirect("/");
