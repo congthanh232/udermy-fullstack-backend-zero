@@ -7,10 +7,11 @@
   <body>
     <h2>User Profile</h2>
 
-<p>Email: <%= user.email %></p>
-<p>Name: <%= user.name %></p>
-<p>City: <%= user.city %></p>
+    <p>Email: <%= user.email %></p>
+    <p>Name: <%= user.name %></p>
+    <p>City: <%= user.city %></p>
+    <p><img src="<%= user.avatar %>" width="50" /></p>
 
-<a href="/logout">Logout</a>
+    <a href="/logout">Logout</a>
   </body>
 </html>

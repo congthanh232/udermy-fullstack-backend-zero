@@ -12,7 +12,7 @@
       <a href="/create">Create User</a>
     </div>
     <div class="form-add-new">
-      <form action="/update-user" method="post">
+      <form action="/update-user" method="post" enctype="multipart/form-data">
         <fieldset>
           <legend>Update a users</legend>
           <div class="input-group d-none">
@@ -31,6 +31,29 @@
           <div class="input-group">
             <label>City:</label>
             <input type="text" name="city" value="<%= userEdit.city %>" />
+          </div>
+          <div class="input-group">
+            <label>Password:</label>
+            <input type="text" name="password" value="<%= userEdit.password %>" />
+          </div>
+          <div>
+            <label>Role:</label>
+  <select name="role">
+    <option value="user" <%= userEdit.role === 'user' ? 'selected' : '' %>>User</option>
+    <option value="admin" <%= userEdit.role === 'admin' ? 'selected' : '' %>>Admin</option>
+  </select>
+          </div>
+          <div>
+            <!-- HIỂN THỊ AVATAR -->
+  <% if (userEdit.avatar) { %>
+    <img src="<%= userEdit.avatar %>" width="120" />
+  <% } %>
+
+  <br>
+
+  <!-- CHỌN ẢNH MỚI -->
+  Change Avatar:
+  <input type="file" name="avatar" />
           </div>
           <div>
             <button>Save</button>

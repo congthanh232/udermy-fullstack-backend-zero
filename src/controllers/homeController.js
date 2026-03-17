@@ -1,5 +1,6 @@
 const connection = require("../config/database");
 const supabase = require("../config/supabase");
+const { sendWelcomeEmail } = require("../services/emailService");
 const {
   getAllUsers,
   updateUserById,
@@ -30,14 +31,37 @@ const getHomepage = async (req, res) => {
   });
 };
 
-const getABC = (req, res) => {
-  res.send("Check abc");
-};
-
 const getHoiDanIT = (req, res) => {
   res.render("sample.ejs");
 };
 
+// const postCreateUser = async (req, res) => {
+//   if (!req.session.user) {
+//     return res.redirect("/");
+//   }
+
+//   let email = req.body.email;
+//   let name = req.body.myname;
+//   let city = req.body.city;
+//   let password = req.body.password;
+//   let role = req.body.role;
+//   let avatar = req.file ? req.file.filename : null;
+//   await connection.query(
+//     `INSERT INTO Users (email, name, city, password, role, avatar)
+//      VALUES ($1, $2, $3, $4, $5, $6)`,
+//     [email, name, city, password, role, avatar],
+//   );
+
+//   res.redirect("/");
+// };
+
+const getCreatePage = (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
+  res.render("create.ejs");
+};
 const postCreateUser = async (req, res) => {
   if (!req.session.user) {
     return res.redirect("/");
@@ -48,34 +72,42 @@ const postCreateUser = async (req, res) => {
   let city = req.body.city;
   let password = req.body.password;
   let role = req.body.role;
-  let avatar = req.file ? req.file.filename : null;
-  //  if (req.file) {
-  //    const fileName = Date.now() + "-" + req.file.originalname;
+  let sendEmailFlag = req.body.sendEmail;
 
-  //    const { data, error } = await supabase.storage
-  //      .from("avatars")
-  //      .upload(fileName, req.file.buffer);
+  let avatarUrl = null;
 
-  //    if (!error) {
-  //      avatarUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/avatars/${fileName}`;
-  //    }
-  //  }
+  if (req.file) {
+    const fileName = Date.now() + "-" + req.file.originalname;
+
+    const { data, error } = await supabase.storage
+      .from("avatars")
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+      });
+
+    if (error) {
+      console.log("UPLOAD ERROR:", error);
+    } else {
+      const { data: publicUrlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(fileName);
+
+      avatarUrl = publicUrlData.publicUrl;
+
+      console.log("Avatar URL:", avatarUrl);
+    }
+  }
 
   await connection.query(
     `INSERT INTO Users (email, name, city, password, role, avatar) 
      VALUES ($1, $2, $3, $4, $5, $6)`,
-    [email, name, city, password, role, avatar],
+    [email, name, city, password, role, avatarUrl],
   );
-
-  res.redirect("/");
-};
-
-const getCreatePage = (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/");
+  if (sendEmailFlag) {
+    await sendWelcomeEmail(email, name);
   }
 
-  res.render("create.ejs");
+  res.redirect("/");
 };
 
 const getUpdatePage = async (req, res) => {
@@ -85,19 +117,63 @@ const getUpdatePage = async (req, res) => {
   const userId = req.params.id;
   let user = await getUserById(userId);
 
-  res.render("update.ejs", { userEdit: user }); //x<-y
+  res.render("update.ejs", { userEdit: user });
 };
 
+// const postUpdateUser = async (req, res) => {
+//   let email = req.body.email;
+//   let name = req.body.myname;
+//   let city = req.body.city;
+//   let userId = req.body.userId;
+
+//   await updateUserById(email, city, name, userId);
+//   res.redirect("/");
+// };
 const postUpdateUser = async (req, res) => {
-  let email = req.body.email;
-  let name = req.body.myname;
-  let city = req.body.city;
-  let userId = req.body.userId;
+  try {
+    let { email, myname, city, password, role, userId } = req.body;
 
-  await updateUserById(email, city, name, userId);
+    // lấy user cũ để giữ avatar nếu không upload mới
+    let currentUser = await getUserById(userId);
+    let avatarUrl = currentUser.avatar;
 
-  // res.send("Updated user succeed !");
-  res.redirect("/");
+    // nếu có upload ảnh mới
+    if (req.file) {
+      const fileName = Date.now() + "-" + req.file.originalname;
+
+      const { error } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, req.file.buffer, {
+          contentType: req.file.mimetype,
+        });
+
+      if (error) {
+        console.log("UPLOAD ERROR:", error);
+      } else {
+        const { data: publicUrlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(fileName);
+
+        avatarUrl = publicUrlData.publicUrl;
+      }
+    }
+
+    // update database
+    await updateUserById({
+      email: email,
+      name: myname,
+      city: city,
+      password: password,
+      role: role,
+      avatar: avatarUrl,
+      userId: userId,
+    });
+
+    res.redirect("/");
+  } catch (err) {
+    console.log(err);
+    res.send("Update failed");
+  }
 };
 
 const postDeleteUser = async (req, res) => {
@@ -114,7 +190,6 @@ const postHandleRemoveUser = async (req, res) => {
 
 module.exports = {
   getHomepage,
-  getABC,
   getHoiDanIT,
   postCreateUser,
   getCreatePage,

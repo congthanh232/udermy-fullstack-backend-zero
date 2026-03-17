@@ -1,8 +1,6 @@
 const express = require("express");
 const {
   getHomepage,
-  getABC,
-  getHoiDanIT,
   postCreateUser,
   getCreatePage,
   getUpdatePage,
@@ -20,16 +18,12 @@ const router = express.Router();
 
 router.get("/", getHomepage);
 
-router.get("/abc", getABC);
-
-// router.get("/hoidanit", getHoiDanIT);
-
 router.get("/create", getCreatePage);
 router.get("/update/:id", getUpdatePage);
 
 router.post("/create-user", upload.single("avatar"), postCreateUser);
 
-router.post("/update-user", postUpdateUser);
+router.post("/update-user", upload.single("avatar"), postUpdateUser);
 
 router.post("/delete-user/:id", postDeleteUser);
 router.post("/delete-user", postHandleRemoveUser);
