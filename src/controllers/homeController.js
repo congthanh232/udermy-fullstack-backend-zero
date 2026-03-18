@@ -94,7 +94,6 @@ const postCreateUser = async (req, res) => {
 
       avatarUrl = publicUrlData.publicUrl;
 
-      console.log("Avatar URL:", avatarUrl);
     }
   }
 

@@ -3,15 +3,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
   <body>
-    <h2>User Profile</h2>
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/logout">Logout</a>
+    </div>
 
-    <p>Email: <%= user.email %></p>
-    <p>Name: <%= user.name %></p>
-    <p>City: <%= user.city %></p>
-    <p><img src="<%= user.avatar %>" width="50" /></p>
+    <div class="form-add-new" style="text-align: center">
+      <h2>User Profile</h2>
+      <br />
+      <img
+        src="<%= user.avatar %>"
+        width="100"
+        class="avatar-img"
+        style="width: 100px; height: 100px; margin-bottom: 20px"
+      />
+      <p style="margin-bottom: 10px; color: var(--text-muted)">
+        <strong>Email:</strong> <%= user.email %>
+      </p>
+      <p style="margin-bottom: 10px; color: var(--text-muted)">
+        <strong>Name:</strong> <%= user.name %>
+      </p>
+      <p style="margin-bottom: 20px; color: var(--text-muted)">
+        <strong>City:</strong> <%= user.city %>
+      </p>
 
-    <a href="/logout">Logout</a>
+      <a href="/logout" style="text-decoration: none">
+        <button class="btn-danger">Logout</button>
+      </a>
+    </div>
   </body>
 </html>

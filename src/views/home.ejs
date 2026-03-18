@@ -2,88 +2,58 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>home page</title>
-    <link rel="stylesheet" href="/css/styles.css" />
-
-    <style>
-      .table-container {
-        padding: 15px 20px;
-      }
-      .title {
-        font-size: 25px;
-        font-weight: 600;
-        padding-bottom: 10px;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-      }
-
-      th,
-      td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-
-      tr:hover {
-        background-color: #ccc;
-      }
-    </style>
+    <title>Home Page</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
-
   <body>
     <div class="topnav">
       <a class="active" href="/">Home</a>
       <% if(user){ %>
-<a href="/create">Create User</a>
-<% } %>
-<% if(user){ %>
-
-<a href="/logout">Logout</a>
-
-<% } else { %>
-
-<a href="/login">Login</a>
-
-<% } %>
+        <a href="/create">Create User</a>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+      <% } %>
     </div>
-    <div class="table-container">
-        
-      <div class="title">List User</div>
-      <table>
-        <tr>
-          <th>ID</th>
-          <th>Email</th>
-          <th>Name</th>
-          <th>City</th>
-          <th>Avatar</th>
-          <% if(user){ %><th>Action</th><% } %>
-        </tr>
-        
 
-    <% listUsers.forEach(function(item) { %>
-    <tr>
-          <td><%= item.id %></td>
-          <td><%= item.email %></td>
-          <td><%= item.name %></td>
-          <td><%= item.city %></td>
-          <td>
-<!-- <img src="/uploads/<%= item.avatar %>" width="50"> -->
- <img src="<%= item.avatar %>" width="50" />
-</td>
-          <td>
-            <% if(user){ %>
-            <a href="/update/<%= item.id %>">Edit</a>
-            <form action="/delete-user/<%= item.id %>" method="post">
-            <button>Delete</button>
-          </form>
-          <% } %>
-          </td>
-        </tr>
- <% }) %>
-       
-      </table>
+    <div class="table-container">
+      <div class="title">List Users</div>
+      <div class="table-wrapper">
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Name</th>
+            <th>City</th>
+            <th>Avatar</th>
+            <% if(user){ %><th>Action</th><% } %>
+          </tr>
+
+          <% listUsers.forEach(function(item) { %>
+          <tr>
+            <td><%= item.id %></td>
+            <td><%= item.email %></td>
+            <td><%= item.name %></td>
+            <td><%= item.city %></td>
+            <td>
+              <img src="<%= item.avatar %>" class="avatar-img" alt="Avatar" />
+            </td>
+            <td>
+              <% if(user){ %>
+              <div class="action-buttons">
+                <a href="/update/<%= item.id %>">
+                  <button class="btn-small">Edit</button>
+                </a>
+                <form action="/delete-user/<%= item.id %>" method="post">
+                  <button class="btn-small btn-danger">Delete</button>
+                </form>
+              </div>
+              <% } %>
+            </td>
+          </tr>
+          <% }) %>
+        </table>
+      </div>
     </div>
   </body>
 </html>

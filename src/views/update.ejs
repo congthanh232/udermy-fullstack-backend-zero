@@ -3,18 +3,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Update A User</title>
-    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
-
   <body>
     <div class="topnav">
       <a href="/">Home</a>
       <a href="/create">Create User</a>
     </div>
+
     <div class="form-add-new">
       <form action="/update-user" method="post" enctype="multipart/form-data">
         <fieldset>
-          <legend>Update a users</legend>
+          <legend>Update User</legend>
+          
           <div class="input-group d-none">
             <label>Id:</label>
             <input type="text" name="userId" value="<%= userEdit.id %>" />
@@ -33,33 +34,40 @@
             <input type="text" name="city" value="<%= userEdit.city %>" />
           </div>
           <div class="input-group">
-            <label>Password:</label>
-            <input type="text" name="password" value="<%= userEdit.password %>" />
-          </div>
-          <div>
+  <label>Password:</label>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <input type="password" name="password" id="myPassword" value="<%= userEdit.password %>" style="flex: 1;" />
+    
+    <button type="button" onclick="togglePass()" style="width: auto; margin-top: 0; padding: 10px 15px; background-color: var(--bg-input); border: 1px solid var(--border-color);">👁️</button>
+  </div>
+</div>
+          <div class="input-group">
             <label>Role:</label>
-  <select name="role">
-    <option value="user" <%= userEdit.role === 'user' ? 'selected' : '' %>>User</option>
-    <option value="admin" <%= userEdit.role === 'admin' ? 'selected' : '' %>>Admin</option>
-  </select>
+            <select name="role">
+              <option value="user" <%= userEdit.role === 'user' ? 'selected' : '' %>>User</option>
+              <option value="admin" <%= userEdit.role === 'admin' ? 'selected' : '' %>>Admin</option>
+            </select>
           </div>
-          <div>
-            <!-- HIỂN THỊ AVATAR -->
-  <% if (userEdit.avatar) { %>
-    <img src="<%= userEdit.avatar %>" width="120" />
-  <% } %>
+          
+          <div class="input-group">
+            <label>Current Avatar:</label>
+            <% if (userEdit.avatar) { %>
+              <img src="<%= userEdit.avatar %>" width="80" class="avatar-preview" />
+            <% } %>
+            <label>Change Avatar:</label>
+            <input type="file" name="avatar" />
+          </div>
 
-  <br>
-
-  <!-- CHỌN ẢNH MỚI -->
-  Change Avatar:
-  <input type="file" name="avatar" />
-          </div>
-          <div>
-            <button>Save</button>
-          </div>
+          <button type="submit">Save Changes</button>
         </fieldset>
       </form>
     </div>
+    <script>
+  function togglePass() {
+    const passInput = document.getElementById("myPassword");
+    // Nếu đang là password thì đổi thành text, ngược lại thì trả về password
+    passInput.type = passInput.type === "password" ? "text" : "password";
+  }
+</script>
   </body>
 </html>

@@ -21,7 +21,7 @@ const sendWelcomeEmail = async (toEmail, name) => {
       `,
     });
 
-    console.log("Email sent to:", toEmail);
+    // console.log("Email sent to:", toEmail);
   } catch (error) {
     console.log("Send mail error:", error);
   }

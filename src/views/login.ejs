@@ -2,17 +2,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>login</title>
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/main.css" />
   </head>
   <body>
-    <h2>Login</h2>
-
-    <form action="/login" method="POST">
-      <input type="text" name="email" placeholder="email" />
-
-      <input type="password" name="password" placeholder="password" />
-
-      <button type="submit">Login</button>
-    </form>
+    <div class="login-container">
+      <h2>Welcome Back</h2>
+      <form action="/login" method="POST">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input
+            type="text"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
   </body>
 </html>
