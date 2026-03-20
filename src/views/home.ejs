@@ -6,10 +6,28 @@
     <link rel="stylesheet" href="/css/main.css" />
   </head>
   <body>
+    <% 
+      let privileges = (user && user.privileges) ? user.privileges : [];
+      let canAdd = privileges.includes('ADD_USER');
+      let canUpdate = privileges.includes('UPDATE_USER');
+      let canDelete = privileges.includes('DELETE_USER');
+      
+      // Nếu có quyền Sửa HOẶC Xóa thì mới được xem cột Action
+      let canViewActions = canUpdate || canDelete; 
+    %>
+
     <div class="topnav">
       <a class="active" href="/">Home</a>
+      
       <% if(user){ %>
-        <a href="/create">Create User</a>
+        <% if(canAdd){ %>
+          <a href="/create">Create User</a>
+        <% } %>
+
+        <% if(canDelete){ %>
+          <a href="/roles" style="color: #ffeb3b; font-weight: bold;">⚙️ Manage Roles</a>
+        <% } %>
+
         <a href="/logout">Logout</a>
       <% } else { %>
         <a href="/login">Login</a>
@@ -26,7 +44,9 @@
             <th>Name</th>
             <th>City</th>
             <th>Avatar</th>
-            <% if(user){ %><th>Action</th><% } %>
+            <% if(canViewActions){ %>
+              <th>Action</th>
+            <% } %>
           </tr>
 
           <% listUsers.forEach(function(item) { %>
@@ -38,18 +58,24 @@
             <td>
               <img src="<%= item.avatar %>" class="avatar-img" alt="Avatar" />
             </td>
+            
+            <% if(canViewActions){ %>
             <td>
-              <% if(user){ %>
               <div class="action-buttons">
-                <a href="/update/<%= item.id %>">
-                  <button class="btn-small">Edit</button>
-                </a>
-                <form action="/delete-user/<%= item.id %>" method="post">
-                  <button class="btn-small btn-danger">Delete</button>
-                </form>
+                <% if(canUpdate){ %>
+                  <a href="/update/<%= item.id %>">
+                    <button class="btn-small">Edit</button>
+                  </a>
+                <% } %>
+
+                <% if(canDelete){ %>
+                  <form action="/delete-user/<%= item.id %>" method="post" style="display:inline;">
+                    <button class="btn-small btn-danger">Delete</button>
+                  </form>
+                <% } %>
               </div>
-              <% } %>
             </td>
+            <% } %>
           </tr>
           <% }) %>
         </table>

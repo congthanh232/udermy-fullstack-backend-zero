@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Role</title>
+    <link rel="stylesheet" href="/css/styles.css"> <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .form-container { margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; }
+        .btn { padding: 5px 10px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; border: none; cursor: pointer;}
+        .btn-warning { background: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <h2>Quản lý Vai trò (Roles)</h2>
+    <a href="/" class="btn">🔙 Quay lại Trang chủ</a>
+    <br><br>
+
+    <div class="form-container">
+        <h3>Tạo Role mới</h3>
+        <form action="/roles/create" method="POST">
+            <div>
+                <label>Tên Role (VD: EDITOR, HR...):</label><br>
+                <input type="text" name="role_name" required style="width: 300px; padding: 5px;">
+            </div>
+            <br>
+            <div>
+                <label>Mô tả:</label><br>
+                <input type="text" name="description" style="width: 300px; padding: 5px;">
+            </div>
+            <br>
+            <button type="submit" class="btn">Lưu Role</button>
+        </form>
+    </div>
+
+    <h3>Danh sách Role hiện tại</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên Role</th>
+                <th>Mô tả</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (listRoles && listRoles.length > 0) { %>
+                <% listRoles.forEach(function(role) { %>
+                    <tr>
+                        <td><%= role.id %></td>
+                        <td><strong><%= role.role_name %></strong></td>
+                        <td><%= role.description %></td>
+                        <td>
+                            <a href="/roles/assign/<%= role.id %>" class="btn btn-warning">Gán Quyền (Assign Privilege)</a>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr><td colspan="4">Chưa có Role nào.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+</html>

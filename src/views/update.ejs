@@ -41,13 +41,23 @@
     <button type="button" onclick="togglePass()" style="width: auto; margin-top: 0; padding: 10px 15px; background-color: var(--bg-input); border: 1px solid var(--border-color);">👁️</button>
   </div>
 </div>
-          <div class="input-group">
-            <label>Role:</label>
-            <select name="role">
-              <option value="user" <%= userEdit.role === 'user' ? 'selected' : '' %>>User</option>
-              <option value="admin" <%= userEdit.role === 'admin' ? 'selected' : '' %>>Admin</option>
-            </select>
-          </div>
+
+
+          <div style="margin-bottom: 15px;">
+    <label style="font-weight: bold;">Vai trò (Role):</label><br>
+    <select name="role_id" style="width: 300px; padding: 5px; margin-top: 5px;">
+        <option value="">-- Chọn Role cho User --</option>
+        
+        <% if (listRoles && listRoles.length > 0) { %>
+            <% listRoles.forEach(function(role) { %>
+                <option value="<%= role.id %>" <%= role.id == currentUserRoleId ? 'selected' : '' %>>
+                    <%= role.role_name %>
+                </option>
+            <% }) %>
+        <% } %>
+        
+    </select>
+</div>
           
           <div class="input-group">
             <label>Current Avatar:</label>

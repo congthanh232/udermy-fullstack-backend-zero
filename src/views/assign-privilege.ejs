@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gán quyền cho Role</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .privilege-box { margin-bottom: 10px; padding: 10px; border: 1px solid #eee; background: #fafafa;}
+        .btn { padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 3px; border: none; cursor: pointer;}
+    </style>
+</head>
+<body>
+    <h2>Cấp quyền cho Role ID: <%= roleId %></h2>
+    <a href="/roles">🔙 Quay lại danh sách Role</a>
+    <br><br>
+
+    <form action="/roles/assign/<%= roleId %>" method="POST">
+        <h3>Chọn các quyền (Privileges) cho Role này:</h3>
+        
+        <% if (allPrivileges && allPrivileges.length > 0) { %>
+            <% allPrivileges.forEach(function(priv) { %>
+                <div class="privilege-box">
+                    <label>
+                        <input type="checkbox" name="privileges" value="<%= priv.id %>" 
+                        <%= rolePrivilegeIds.includes(priv.id) ? 'checked' : '' %>>
+                        
+                        <strong><%= priv.privilege_name %></strong> 
+                        <span style="color: gray;">- <%= priv.description %></span>
+                    </label>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <p>Chưa có quyền (Privilege) nào được tạo trong Database.</p>
+        <% } %>
+
+        <br>
+        <button type="submit" class="btn">Lưu cấu hình quyền</button>
+    </form>
+</body>
+</html>

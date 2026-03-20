@@ -7,60 +7,28 @@ const {
   getUserById,
   deleteUserById,
 } = require("../services/CRUDService");
-let user = [];
+const RoleService = require("../services/RoleService");
+
 const getHomepage = async (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/login");
-  }
 
+  // 2. Đã đăng nhập thì lấy thông tin và danh sách
   let user = req.session.user;
+  let results = await getAllUsers();
 
-  // nếu là admin
-  if (user.role === "admin") {
-    let results = await getAllUsers();
-
-    return res.render("home.ejs", {
-      listUsers: results,
-      user: user,
-    });
-  }
-
-  // nếu là user thường
-  return res.render("profile.ejs", {
+  // 3. Luôn luôn render trang home (Giao diện EJS sẽ tự lo phần ẩn/hiện nút)
+  return res.render("home.ejs", {
+    listUsers: results,
     user: user,
   });
 };
 
-const getHoiDanIT = (req, res) => {
-  res.render("sample.ejs");
-};
 
-// const postCreateUser = async (req, res) => {
-//   if (!req.session.user) {
-//     return res.redirect("/");
-//   }
 
-//   let email = req.body.email;
-//   let name = req.body.myname;
-//   let city = req.body.city;
-//   let password = req.body.password;
-//   let role = req.body.role;
-//   let avatar = req.file ? req.file.filename : null;
-//   await connection.query(
-//     `INSERT INTO Users (email, name, city, password, role, avatar)
-//      VALUES ($1, $2, $3, $4, $5, $6)`,
-//     [email, name, city, password, role, avatar],
-//   );
+const getCreatePage = async (req, res) => {
+  // Lấy danh sách Role từ DB để truyền sang giao diện
+  let listRoles = await RoleService.getAllRoles();
 
-//   res.redirect("/");
-// };
-
-const getCreatePage = (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/");
-  }
-
-  res.render("create.ejs");
+  res.render("create.ejs", { listRoles: listRoles });
 };
 const postCreateUser = async (req, res) => {
   if (!req.session.user) {
@@ -71,8 +39,8 @@ const postCreateUser = async (req, res) => {
   let name = req.body.myname;
   let city = req.body.city;
   let password = req.body.password;
-  let role = req.body.role;
   let sendEmailFlag = req.body.sendEmail;
+  let role_id = req.body.role_id;
 
   let avatarUrl = null;
 
@@ -97,11 +65,17 @@ const postCreateUser = async (req, res) => {
     }
   }
 
-  await connection.query(
-    `INSERT INTO Users (email, name, city, password, role, avatar) 
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [email, name, city, password, role, avatarUrl],
+  let [result, fields] = await connection.query(
+    `INSERT INTO Users (email, name, city, password, avatar) 
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [email, name, city, password, avatarUrl],
   );
+  // Lấy ra ID của User vừa được tạo trong database
+  const newUserId = result[0].id;
+  // SỬA Ở ĐÂY: Gọi hàm gán Role cho User mới
+  if (role_id && role_id !== "") {
+    await RoleService.assignRoleToUser(newUserId, role_id);
+  }
   if (sendEmailFlag) {
     await sendWelcomeEmail(email, name);
   }
@@ -110,27 +84,29 @@ const postCreateUser = async (req, res) => {
 };
 
 const getUpdatePage = async (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/");
-  }
   const userId = req.params.id;
+  
+  // 1. Lấy thông tin cơ bản của User
   let user = await getUserById(userId);
 
-  res.render("update.ejs", { userEdit: user });
+  // 2. Lấy danh sách tất cả các Role để đổ vào thẻ <select>
+  let listRoles = await RoleService.getAllRoles();
+
+  // 3. Lấy Role hiện tại của User này (để tick sẵn selected)
+  let currentRoles = await RoleService.getRolesByUserId(userId);
+  let currentUserRoleId = currentRoles.length > 0 ? currentRoles[0].id : null;
+
+  res.render("update.ejs", { 
+    userEdit: user,
+    listRoles: listRoles,              // <--- Truyền thêm 2 biến này sang EJS
+    currentUserRoleId: currentUserRoleId 
+  });
 };
 
-// const postUpdateUser = async (req, res) => {
-//   let email = req.body.email;
-//   let name = req.body.myname;
-//   let city = req.body.city;
-//   let userId = req.body.userId;
 
-//   await updateUserById(email, city, name, userId);
-//   res.redirect("/");
-// };
 const postUpdateUser = async (req, res) => {
   try {
-    let { email, myname, city, password, role, userId } = req.body;
+    let { email, myname, city, password, role_id, userId } = req.body;
 
     // lấy user cũ để giữ avatar nếu không upload mới
     let currentUser = await getUserById(userId);
@@ -163,10 +139,12 @@ const postUpdateUser = async (req, res) => {
       name: myname,
       city: city,
       password: password,
-      role: role,
       avatar: avatarUrl,
       userId: userId,
     });
+
+    // Gọi hàm gán Role mới cho User
+    await RoleService.assignRoleToUser(userId, role_id);
 
     res.redirect("/");
   } catch (err) {
@@ -189,7 +167,6 @@ const postHandleRemoveUser = async (req, res) => {
 
 module.exports = {
   getHomepage,
-  getHoiDanIT,
   postCreateUser,
   getCreatePage,
   getUpdatePage,

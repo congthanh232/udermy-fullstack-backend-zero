@@ -6,7 +6,7 @@ const getLoginPage = (req, res) => {
 const handleLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  let user = await CRUDService.getUserByEmail(email);
+  let user = await CRUDService.getUserByEmailWithPrivileges(email);
 
   if (!user) {
     return res.render("login.ejs", { message: "User not found" });

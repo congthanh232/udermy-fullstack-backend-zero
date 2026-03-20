@@ -41,13 +41,21 @@
             <label>Password:</label>
             <input type="password" name="password" required />
           </div>
-          <div class="input-group">
-            <label>Role:</label>
-            <select name="role">
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+          <div style="margin-bottom: 15px;">
+    <label style="font-weight: bold;">Role:</label><br>
+    <select name="role_id" style="width: 100%; padding: 8px; margin-top: 5px; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 4px;">
+        <option value="">-- Chọn Role --</option>
+        
+        <% if (listRoles && listRoles.length > 0) { %>
+            <% listRoles.forEach(function(role) { %>
+                <option value="<%= role.id %>">
+                    <%= role.role_name %>
+                </option>
+            <% }) %>
+        <% } %>
+        
+    </select>
+</div>
           <div class="input-group">
             <label>Avatar:</label>
             <input type="file" name="avatar" />
