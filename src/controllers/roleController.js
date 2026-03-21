@@ -52,9 +52,29 @@ const postAssignPrivilege = async (req, res) => {
   res.redirect("/roles");
 };
 
+// 5. Xử lý xóa Role
+const postDeleteRole = async (req, res) => {
+  const roleId = req.params.id;
+  
+  // LỚP PHÒNG THỦ: Cấm tuyệt đối việc xóa Role ADMIN (giả sử ID của ADMIN là 1)
+  // Bạn có thể tùy chỉnh ID này cho đúng với Database của bạn
+  if (roleId === '1') {
+    return res.send("Lỗi: Không được phép xóa Role ADMIN của hệ thống!");
+  }
+
+  try {
+    await RoleService.deleteRoleById(roleId);
+    res.redirect("/roles");
+  } catch (error) {
+    console.log(error);
+    res.send("Lỗi xóa Role!");
+  }
+};
+
 module.exports = {
   getRolePage,
   postCreateRole,
   getAssignPrivilegePage,
-  postAssignPrivilege
+  postAssignPrivilege,
+  postDeleteRole
 };

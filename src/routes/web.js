@@ -40,6 +40,7 @@ router.get("/logout", authController.logout);
 // Màn hình danh sách & tạo Role
 router.get("/roles",checkPrivilege('DELETE_USER'), roleController.getRolePage);
 router.post("/roles/create",checkPrivilege('DELETE_USER'), roleController.postCreateRole);
+router.post("/roles/delete/:id", checkPrivilege('DELETE_USER'), roleController.postDeleteRole);
 
 // Màn hình gán quyền (Assign Privilege)
 router.get("/roles/assign/:id",checkPrivilege('DELETE_USER'), roleController.getAssignPrivilegePage);

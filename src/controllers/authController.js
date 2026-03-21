@@ -1,4 +1,5 @@
 const CRUDService = require("../services/CRUDService");
+const bcrypt = require("bcrypt");
 const getLoginPage = (req, res) => {
   return res.render("login.ejs");
 };
@@ -12,7 +13,10 @@ const handleLogin = async (req, res) => {
     return res.render("login.ejs", { message: "User not found" });
   }
 
-  if (user.password !== password) {
+  //So sánh mật khẩu người dùng gõ (password) với mật khẩu mã hóa trong DB (user.password)
+  const isMatch = await bcrypt.compare(password, user.password);
+  
+  if (!isMatch) {
     return res.render("login.ejs", { message: "Wrong password" });
   }
 

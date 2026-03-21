@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Update A User</title>
     <link rel="stylesheet" href="/css/main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <div class="topnav">
@@ -23,61 +24,114 @@
 
           <div class="input-group">
             <label>Email:</label>
-            <input type="text" name="email" value="<%= userEdit.email %>" />
+            <input type="text" name="email" value="<%= userEdit.email %>" required />
           </div>
           <div class="input-group">
             <label>Name:</label>
-            <input type="text" name="myname" value="<%= userEdit.name %>" />
+            <input type="text" name="myname" value="<%= userEdit.name %>" required />
           </div>
           <div class="input-group">
             <label>City:</label>
             <input type="text" name="city" value="<%= userEdit.city %>" />
           </div>
-          <div class="input-group">
-  <label>Password:</label>
-  <div style="display: flex; gap: 10px; align-items: center;">
-    <input type="password" name="password" id="myPassword" value="<%= userEdit.password %>" style="flex: 1;" />
-    
-    <button type="button" onclick="togglePass()" style="width: auto; margin-top: 0; padding: 10px 15px; background-color: var(--bg-input); border: 1px solid var(--border-color);">👁️</button>
-  </div>
-</div>
-
-
-          <div style="margin-bottom: 15px;">
-    <label style="font-weight: bold;">Vai trò (Role):</label><br>
-    <select name="role_id" style="width: 300px; padding: 5px; margin-top: 5px;">
-        <option value="">-- Chọn Role cho User --</option>
-        
-        <% if (listRoles && listRoles.length > 0) { %>
-            <% listRoles.forEach(function(role) { %>
-                <option value="<%= role.id %>" <%= role.id == currentUserRoleId ? 'selected' : '' %>>
-                    <%= role.role_name %>
-                </option>
-            <% }) %>
-        <% } %>
-        
-    </select>
-</div>
           
           <div class="input-group">
-            <label>Current Avatar:</label>
-            <% if (userEdit.avatar) { %>
-              <img src="<%= userEdit.avatar %>" width="80" class="avatar-preview" />
-            <% } %>
+            <label>New Password (Để trống nếu không muốn đổi):</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="password" name="password" id="myPassword" placeholder="Nhập mật khẩu mới..." style="flex: 1;" />
+              <button type="button" onclick="togglePass('myPassword')" style="width: auto; margin-top: 0; padding: 10px 15px; background-color: var(--bg-input); border: 1px solid var(--border-color);">👁️</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Confirm New Password:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="password" name="confirmPassword" id="myConfirmPassword" placeholder="Nhập lại mật khẩu mới..." style="flex: 1;" />
+              <button type="button" onclick="togglePass('myConfirmPassword')" style="width: auto; margin-top: 0; padding: 10px 15px; background-color: var(--bg-input); border: 1px solid var(--border-color);">👁️</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Vai trò (Role):</label><br>
+            <select name="role_id" style="width: 300px; padding: 5px; margin-top: 5px;">
+                <option value="">-- Chọn Role cho User --</option>
+                <% if (listRoles && listRoles.length > 0) { %>
+                    <% listRoles.forEach(function(role) { %>
+                        <option value="<%= role.id %>" <%= role.id == currentUserRoleId ? 'selected' : '' %>>
+                            <%= role.role_name %>
+                        </option>
+                    <% }) %>
+                <% } %>
+            </select>
+          </div>
+          
+          <div class="input-group">
+            <label>Avatar:</label>
+            <img 
+    src="<%= userEdit.avatar ? userEdit.avatar : '/images/default-avatar.png' %>" 
+    id="avatar-preview" 
+    width="80" 
+    style="border-radius: 8px; margin-bottom: 10px; display: block; cursor: pointer;" 
+    onclick="viewFullImage(this.src)" 
+    
+/>
+            
             <label>Change Avatar:</label>
-            <input type="file" name="avatar" />
+            <input type="file" name="avatar" id="avatar-input" onchange="previewAvatar(event)" accept="image/*" />
           </div>
 
           <button type="submit">Save Changes</button>
         </fieldset>
       </form>
     </div>
+
     <script>
-  function togglePass() {
-    const passInput = document.getElementById("myPassword");
-    // Nếu đang là password thì đổi thành text, ngược lại thì trả về password
-    passInput.type = passInput.type === "password" ? "text" : "password";
-  }
-</script>
+      // Hàm nhận vào ID của ô input nào thì sẽ bật/tắt mắt của ô input đó
+      function togglePass(inputId) {
+        const passInput = document.getElementById(inputId);
+        // Đảo ngược trạng thái: đang là password thì thành text, và ngược lại
+        passInput.type = passInput.type === "password" ? "text" : "password";
+      }
+
+      // Hàm hiển thị ảnh xem trước
+      function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            // Thay đổi đường link (src) của thẻ <img> thành ảnh vừa tải lên
+            document.getElementById('avatar-preview').src = e.target.result;
+          }
+          reader.readAsDataURL(file);
+        }
+      }
+      // Hàm nhận vào đường link ảnh và dùng SweetAlert2 để phóng to
+    function viewFullImage(imgUrl) {
+        Swal.fire({
+            imageUrl: imgUrl,
+            imageAlt: 'User Avatar',
+            showConfirmButton: false,   // Ẩn nút OK đi cho giống trình xem ảnh
+            showCloseButton: true,      // Hiện dấu X ở góc trên để tắt
+            width: 'auto',              // Tự động căn chỉnh theo kích thước ảnh thật
+            padding: '1em',
+            background: 'transparent',  // Nền trong suốt
+            backdrop: 'rgba(0,0,0,0.8)' // Làm tối màn hình phía sau (80% đen)
+        });
+    }
+    </script>
+
+    <% if (locals.error) { %>
+        <script>
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: '<%= error %>',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        </script>
+    <% } %>
   </body>
 </html>

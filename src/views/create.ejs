@@ -4,11 +4,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create A User</title>
     <link rel="stylesheet" href="/css/main.css" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <div class="topnav">
       <a href="/">Home</a>
       <a class="active" href="/create">Create User</a>
+      <a href="/roles" > Manage Roles</a>
+      <a href="/logout">Logout</a>
     </div>
 
     <div class="form-add-new">
@@ -18,8 +22,9 @@
 
           <div class="input-group">
             <label>Email:</label>
-            <input type="text" name="email" required />
+            <input type="text" name="email" required placeholder="Ví dụ: test@gmail.com"/>
           </div>
+          
           <div class="input-group checkbox-group">
             <input
               type="checkbox"
@@ -29,33 +34,40 @@
             />
             <label for="sendEmail">Send welcome email</label>
           </div>
+          
           <div class="input-group">
             <label>Name:</label>
             <input type="text" name="myname" required />
           </div>
+          
           <div class="input-group">
             <label>City:</label>
             <input type="text" name="city" />
           </div>
+          
           <div class="input-group">
             <label>Password:</label>
             <input type="password" name="password" required />
           </div>
+          <div class="input-group">
+            <label>Confirm Password:</label>
+            <input type="password" name="confirmPassword" required />
+          </div>
+          
           <div style="margin-bottom: 15px;">
-    <label style="font-weight: bold;">Role:</label><br>
-    <select name="role_id" style="width: 100%; padding: 8px; margin-top: 5px; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 4px;">
-        <option value="">-- Chọn Role --</option>
-        
-        <% if (listRoles && listRoles.length > 0) { %>
-            <% listRoles.forEach(function(role) { %>
-                <option value="<%= role.id %>">
-                    <%= role.role_name %>
-                </option>
-            <% }) %>
-        <% } %>
-        
-    </select>
-</div>
+            <label style="font-weight: bold;">Role:</label><br>
+            <select name="role_id" style="width: 100%; padding: 8px; margin-top: 5px; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 4px;">
+                <option value="">-- Chọn Role --</option>
+                <% if (listRoles && listRoles.length > 0) { %>
+                    <% listRoles.forEach(function(role) { %>
+                        <option value="<%= role.id %>">
+                            <%= role.role_name %>
+                        </option>
+                    <% }) %>
+                <% } %>
+            </select>
+          </div>
+          
           <div class="input-group">
             <label>Avatar:</label>
             <input type="file" name="avatar" />
@@ -65,5 +77,20 @@
         </fieldset>
       </form>
     </div>
+
+    <% if (locals.error) { %>
+        <script>
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: '<%= error %>',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        </script>
+    <% } %>
+
   </body>
 </html>

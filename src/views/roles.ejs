@@ -1,67 +1,100 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quản lý Role</title>
-    <link rel="stylesheet" href="/css/styles.css"> <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .form-container { margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; }
-        .btn { padding: 5px 10px; background: #007bff; color: white; text-decoration: none; border-radius: 3px; border: none; cursor: pointer;}
-        .btn-warning { background: #ffc107; color: black; }
-    </style>
-</head>
-<body>
-    <h2>Quản lý Vai trò (Roles)</h2>
-    <a href="/" class="btn">🔙 Quay lại Trang chủ</a>
-    <br><br>
-
-    <div class="form-container">
-        <h3>Tạo Role mới</h3>
-        <form action="/roles/create" method="POST">
-            <div>
-                <label>Tên Role (VD: EDITOR, HR...):</label><br>
-                <input type="text" name="role_name" required style="width: 300px; padding: 5px;">
-            </div>
-            <br>
-            <div>
-                <label>Mô tả:</label><br>
-                <input type="text" name="description" style="width: 300px; padding: 5px;">
-            </div>
-            <br>
-            <button type="submit" class="btn">Lưu Role</button>
-        </form>
+    <link rel="stylesheet" href="/css/main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/create">Create User</a>
+      <a class="active" href="/roles" > Manage Roles</a>
+      <a href="/logout">Logout</a>
     </div>
 
-    <h3>Danh sách Role hiện tại</h3>
-    <table>
-        <thead>
+    <div class="form-add-new" style="margin-top: 30px;">
+      <form action="/roles/create" method="POST">
+        <fieldset>
+          <legend>Tạo Role mới</legend>
+
+          <div class="input-group">
+            <label>Tên Role:</label>
+            <input type="text" name="role_name" required placeholder="Nhập tên Role..." />
+          </div>
+          
+          <div class="input-group">
+            <label>Mô tả:</label>
+            <input type="text" name="description" placeholder="Nhập mô tả..." />
+          </div>
+
+          <button type="submit">Lưu Role</button>
+        </fieldset>
+      </form>
+    </div>
+
+    <div class="table-container" style="margin-top: 30px;">
+      <div class="title">Danh sách Role hiện tại</div>
+      <div class="table-wrapper">
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Tên Role</th>
+            <th>Mô tả</th>
+            <th>Hành động</th>
+          </tr>
+
+          <% if (listRoles && listRoles.length > 0) { %>
+            <% listRoles.forEach(function(role) { %>
+              <tr>
+                <td><%= role.id %></td>
+                <td style="font-weight: bold; color: #ffeb3b;"><%= role.role_name %></td>
+                <td><%= role.description %></td>
+                <td>
+                  <div class="action-buttons">
+                    <a href="/roles/assign/<%= role.id %>">
+                      <button class="btn-small" style="background-color: #ff9800; border-color: #ff9800;">Gán Quyền</button>
+                    </a>
+                    <% if (role.id != 1) { %>
+                      <form id="delete-form-<%= role.id %>" action="/roles/delete/<%= role.id %>" method="POST" style="margin: 0;">
+                        <button type="button" class="btn-small btn-danger" onclick="confirmDelete('<%= role.id %>', '<%= role.role_name %>')">Xóa</button>
+                      </form>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
             <tr>
-                <th>ID</th>
-                <th>Tên Role</th>
-                <th>Mô tả</th>
-                <th>Hành động</th>
+              <td colspan="4" style="text-align: center; color: #ccc;">Chưa có Role nào.</td>
             </tr>
-        </thead>
-        <tbody>
-            <% if (listRoles && listRoles.length > 0) { %>
-                <% listRoles.forEach(function(role) { %>
-                    <tr>
-                        <td><%= role.id %></td>
-                        <td><strong><%= role.role_name %></strong></td>
-                        <td><%= role.description %></td>
-                        <td>
-                            <a href="/roles/assign/<%= role.id %>" class="btn btn-warning">Gán Quyền (Assign Privilege)</a>
-                        </td>
-                    </tr>
-                <% }) %>
-            <% } else { %>
-                <tr><td colspan="4">Chưa có Role nào.</td></tr>
-            <% } %>
-        </tbody>
-    </table>
-</body>
+          <% } %>
+        </table>
+      </div>
+    </div>
+    <script>
+      function confirmDelete(roleId, roleName) {
+        Swal.fire({
+          title: `Xóa Role: ${roleName}?`,
+          text: "Hành động này sẽ xóa Role và toàn bộ cấu hình quyền của nó. Bạn có chắc chắn không?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Vâng, xóa đi!',
+          cancelButtonText: 'Hủy bỏ',
+          background: '#2b2b2b',   // Đổi màu nền popup cho ngầu
+          color: '#ffffff'         // Đổi màu chữ sang trắng
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Nếu người dùng bấm Yes, thì mới ra lệnh submit cái form HTML đi
+            document.getElementById(`delete-form-${roleId}`).submit();
+          }
+        })
+      }
+    </script>
+
+  </body>
 </html>

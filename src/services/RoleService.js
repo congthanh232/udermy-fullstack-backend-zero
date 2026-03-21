@@ -86,6 +86,21 @@ const assignRoleToUser = async (userId, roleId) => {
   }
 };
 
+// Hàm xóa Role khỏi Database
+const deleteRoleById = async (roleId) => {
+  try {
+    // 1. Phải xóa sạch các quyền đang được gán cho Role này trước (để tránh lỗi khóa ngoại)
+    await connection.query("DELETE FROM role_privileges WHERE role_id = $1", [roleId]);
+    
+    // 2. Chém bay luôn Role đó
+    let [result] = await connection.query("DELETE FROM roles WHERE id = $1", [roleId]);
+    return result;
+  } catch (error) {
+    console.log("Lỗi xóa role:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   getAllRoles,
   getAllPrivileges,
@@ -93,5 +108,6 @@ module.exports = {
   getRolesByUserId,
   createRole,          
   updateRolePrivileges,
-  assignRoleToUser
+  assignRoleToUser,
+  deleteRoleById
 };

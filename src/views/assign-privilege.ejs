@@ -1,41 +1,95 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gán quyền cho Role</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .privilege-box { margin-bottom: 10px; padding: 10px; border: 1px solid #eee; background: #fafafa;}
-        .btn { padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 3px; border: none; cursor: pointer;}
+      /* Thêm một chút CSS riêng để làm đẹp các hàng Checkbox */
+      .privilege-box {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color, #444);
+        background: var(--bg-input, #2b2b2b);
+        border-radius: 6px;
+        cursor: pointer; /* Chuột thành hình bàn tay */
+        transition: background 0.2s;
+      }
+      
+      /* Hiệu ứng sáng lên khi di chuột vào dòng đó */
+      .privilege-box:hover {
+        background: #3a3a3a;
+      }
+
+      /* Phóng to ô checkbox lên một xíu cho dễ nhìn */
+      .privilege-box input[type="checkbox"] {
+        transform: scale(1.3);
+        margin-right: 15px;
+        cursor: pointer;
+      }
+
+      .privilege-name {
+        color: #ffeb3b; /* Màu vàng đồng bộ với tên Role ở trang trước */
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .privilege-desc {
+        color: #bbb;
+      }
     </style>
-</head>
-<body>
-    <h2>Cấp quyền cho Role ID: <%= roleId %></h2>
-    <a href="/roles">🔙 Quay lại danh sách Role</a>
-    <br><br>
+  </head>
+  <body>
+    
+    <div class="topnav">
+      <a href="/">Home</a>
+      <a href="/create">Create User</a>
+      <a class="active" href="/roles" style="font-weight: bold;"> Manage Roles</a>
+      <a href="/logout">Logout</a>
+    </div>
 
-    <form action="/roles/assign/<%= roleId %>" method="POST">
-        <h3>Chọn các quyền (Privileges) cho Role này:</h3>
-        
-        <% if (allPrivileges && allPrivileges.length > 0) { %>
+    <div class="form-add-new" style="margin-top: 30px; max-width: 650px;">
+      <form action="/roles/assign/<%= roleId %>" method="POST">
+        <fieldset>
+          <legend>Cấp quyền cho Role ID: <%= roleId %></legend>
+
+          <div style="margin-bottom: 20px;">
+            <a href="/roles" style="color: #4CAF50; text-decoration: none; font-weight: bold;">
+              🔙 Quay lại danh sách Role
+            </a>
+          </div>
+
+          <div style="margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px; font-weight: bold; font-size: 16px;">
+            Chọn các quyền (Privileges):
+          </div>
+
+          <% if (allPrivileges && allPrivileges.length > 0) { %>
             <% allPrivileges.forEach(function(priv) { %>
-                <div class="privilege-box">
-                    <label>
-                        <input type="checkbox" name="privileges" value="<%= priv.id %>" 
-                        <%= rolePrivilegeIds.includes(priv.id) ? 'checked' : '' %>>
-                        
-                        <strong><%= priv.privilege_name %></strong> 
-                        <span style="color: gray;">- <%= priv.description %></span>
-                    </label>
+              
+              <label class="privilege-box">
+                <input type="checkbox" name="privileges" value="<%= priv.id %>" 
+                <%= rolePrivilegeIds.includes(priv.id) ? 'checked' : '' %>>
+                
+                <div>
+                  <span class="privilege-name"><%= priv.privilege_name %></span>
+                  <span class="privilege-desc">- <%= priv.description %></span>
                 </div>
-            <% }) %>
-        <% } else { %>
-            <p>Chưa có quyền (Privilege) nào được tạo trong Database.</p>
-        <% } %>
+              </label>
 
-        <br>
-        <button type="submit" class="btn">Lưu cấu hình quyền</button>
-    </form>
-</body>
+            <% }) %>
+          <% } else { %>
+            <div style="color: #ff4c4c; padding: 10px; text-align: center;">
+              Chưa có quyền (Privilege) nào được tạo trong Database.
+            </div>
+          <% } %>
+
+          <button type="submit" style="margin-top: 20px; width: 100%;">Lưu cấu hình quyền</button>
+        </fieldset>
+      </form>
+    </div>
+
+  </body>
 </html>

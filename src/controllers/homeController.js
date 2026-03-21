@@ -8,7 +8,7 @@ const {
   deleteUserById,
 } = require("../services/CRUDService");
 const RoleService = require("../services/RoleService");
-
+const bcrypt = require("bcrypt");
 const getHomepage = async (req, res) => {
 
   // 2. Đã đăng nhập thì lấy thông tin và danh sách
@@ -31,14 +31,31 @@ const getCreatePage = async (req, res) => {
   res.render("create.ejs", { listRoles: listRoles });
 };
 const postCreateUser = async (req, res) => {
-  if (!req.session.user) {
-    return res.redirect("/");
-  }
-
   let email = req.body.email;
+  let password = req.body.password;
+  let confirmPassword = req.body.confirmPassword;
+  // 1. Check Regex Email
+  if (!isValidEmail(email)) {
+    let listRoles = await RoleService.getAllRoles(); 
+    return res.render("create.ejs", { 
+        listRoles: listRoles,
+        error: "❌ Email không hợp lệ !" 
+    });
+  }
+  // 2. LỚP PHÒNG THỦ MỚI: Check 2 mật khẩu có khớp nhau không
+  if (password !== confirmPassword) {
+    let listRoles = await RoleService.getAllRoles(); 
+    return res.render("create.ejs", { 
+        listRoles: listRoles,
+        error: "❌ Mật khẩu và Xác nhận mật khẩu không khớp nhau!" 
+    });
+  }
+  // 3. MÃ HÓA MẬT KHẨU (ENCODING)
+  // Số 10 là độ khó của thuật toán (càng cao càng bảo mật nhưng máy chạy chậm hơn, 10 là chuẩn)
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   let name = req.body.myname;
   let city = req.body.city;
-  let password = req.body.password;
   let sendEmailFlag = req.body.sendEmail;
   let role_id = req.body.role_id;
 
@@ -68,7 +85,7 @@ const postCreateUser = async (req, res) => {
   let [result, fields] = await connection.query(
     `INSERT INTO Users (email, name, city, password, avatar) 
      VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-    [email, name, city, password, avatarUrl],
+    [email, name, city, hashedPassword, avatarUrl],
   );
   // Lấy ra ID của User vừa được tạo trong database
   const newUserId = result[0].id;
@@ -106,45 +123,70 @@ const getUpdatePage = async (req, res) => {
 
 const postUpdateUser = async (req, res) => {
   try {
-    let { email, myname, city, password, role_id, userId } = req.body;
-
-    // lấy user cũ để giữ avatar nếu không upload mới
+    let { email, myname, city, password, confirmPassword, role_id, userId } = req.body;
+    
+    // 1. Lấy user cũ từ database lên để chuẩn bị dữ liệu
     let currentUser = await getUserById(userId);
     let avatarUrl = currentUser.avatar;
+    let finalPassword = currentUser.password; // Mặc định: Giữ nguyên mật khẩu cũ
 
-    // nếu có upload ảnh mới
+    // HÀM CHUẨN BỊ DỮ LIỆU ĐỂ RENDER LẠI FORM (Dùng chung khi có lỗi)
+    const renderError = async (errorMessage) => {
+      let listRoles = await RoleService.getAllRoles();
+      let currentRoles = await RoleService.getRolesByUserId(userId);
+      let currentUserRoleId = currentRoles.length > 0 ? currentRoles[0].id : null;
+      
+      return res.render("update.ejs", { 
+          userEdit: currentUser,
+          listRoles: listRoles,
+          currentUserRoleId: currentUserRoleId,
+          error: errorMessage 
+      });
+    };
+
+    // 2. Kiểm tra Regex Email
+    if (!isValidEmail(email)) {
+      return await renderError("❌ Email không hợp lệ!");
+    }
+
+    // 3. XỬ LÝ MẬT KHẨU: Chỉ kiểm tra và mã hóa NẾU người dùng có gõ mật khẩu mới
+    if (password && password.trim() !== "") {
+      if (password !== confirmPassword) {
+        return await renderError("❌ Mật khẩu và Xác nhận mật khẩu không khớp!");
+      }
+      // Nếu khớp thì băm nhỏ nó ra
+      finalPassword = await bcrypt.hash(password, 10);
+    }
+
+    // 4. XỬ LÝ UPLOAD ẢNH (Giữ nguyên của bạn)
     if (req.file) {
       const fileName = Date.now() + "-" + req.file.originalname;
-
       const { error } = await supabase.storage
         .from("avatars")
-        .upload(fileName, req.file.buffer, {
-          contentType: req.file.mimetype,
-        });
+        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
 
       if (error) {
         console.log("UPLOAD ERROR:", error);
       } else {
-        const { data: publicUrlData } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(fileName);
-
+        const { data: publicUrlData } = supabase.storage.from("avatars").getPublicUrl(fileName);
         avatarUrl = publicUrlData.publicUrl;
       }
     }
 
-    // update database
+    // 5. Cập nhật Database (Dùng finalPassword)
     await updateUserById({
       email: email,
       name: myname,
       city: city,
-      password: password,
+      password: finalPassword, // Nhét finalPassword vào đây
       avatar: avatarUrl,
       userId: userId,
     });
 
-    // Gọi hàm gán Role mới cho User
-    await RoleService.assignRoleToUser(userId, role_id);
+    // 6. Gán Role mới
+    if (role_id && role_id !== "") {
+      await RoleService.assignRoleToUser(userId, role_id);
+    }
 
     res.redirect("/");
   } catch (err) {
@@ -163,6 +205,13 @@ const postHandleRemoveUser = async (req, res) => {
   const id = req.body.userId;
   await deleteUserById(id);
   res.redirect("/");
+};
+
+// Hàm kiểm tra email bằng Regex
+const isValidEmail = (email) => {
+  // Regex này ép buộc: phải có chữ @ ở giữa, và dấu . ở phần đuôi
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 };
 
 module.exports = {
